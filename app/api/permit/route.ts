@@ -1,3 +1,4 @@
+export const runtime = "nodejs";
 import { NextResponse } from "next/server";
 import nacl from "tweetnacl";
 import bs58 from "bs58";

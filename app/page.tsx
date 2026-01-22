@@ -2,7 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
-import WalletButtonClient from "./components/WalletButtonClient";
+import dynamic from "next/dynamic";
+
+const WalletButtonClient = dynamic(
+    () => import("./components/WalletButtonClient"),
+    { ssr: false }
+);
+
 
 type Badge = {
     id?: string;
