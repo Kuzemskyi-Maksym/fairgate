@@ -1,0 +1,8 @@
+# Default ignored files
+/../../fairgate /.idea/shelf/
+/../../fairgate /.idea/workspace.xml
+# Editor-based HTTP Client requests
+/../../fairgate /.idea/httpRequests/
+# Datasource local storage ignored files
+/../../fairgate /.idea/dataSources/
+/../../fairgate /.idea/dataSources.local.xml
