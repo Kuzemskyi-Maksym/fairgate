@@ -13,10 +13,7 @@ export async function POST(req: Request) {
     try {
         const payload = verifyPermit(permit, secret);
 
-        // - видати allowlist spot
-        // - створити mint-pass
-        // - записати claim в storage
-        // Поки повертаємо підтвердження.
+        // DEMO protected action:
         return NextResponse.json({
             ok: true,
             message: "Mint permitted (server-side gate + wallet ownership verified) ✅",

@@ -4,8 +4,8 @@ export type PermitPayload = {
     wallet: string;
     fairScore: number;
     fairScaleTier: string | null;
-    issuedAt: number;  // unix seconds
-    expiresAt: number; // unix seconds
+    issuedAt: number;
+    expiresAt: number;
     nonce: string;
 };
 

@@ -9,7 +9,6 @@ type ChallengePayload = {
 };
 
 function buildMessage(payload: ChallengePayload) {
-    // ВАЖЛИВО: клієнт підписує саме цей текст 1:1
     return [
         "FairGate Permit Request",
         `Wallet: ${payload.wallet}`,
@@ -28,11 +27,12 @@ export async function POST(req: Request) {
     if (!wallet) return NextResponse.json({ error: "wallet is required" }, { status: 400 });
 
     const now = Math.floor(Date.now() / 1000);
+
     const payload: ChallengePayload = {
         wallet,
         nonce: randomNonce(),
         issuedAt: now,
-        expiresAt: now + 5 * 60, // challenge живе 5 хв
+        expiresAt: now + 5 * 60,
     };
 
     const challengeToken = createHmacToken(payload, secret);

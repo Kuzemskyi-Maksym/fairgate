@@ -22,9 +22,10 @@ function buildMessage(payload: ChallengePayload) {
 }
 
 function decisionFromFairScore(score: number) {
-    if (score >= 70) return { tierLabel: "Gold", canMint: true, mintLimit: 3 };
-    if (score >= 40) return { tierLabel: "Silver", canMint: true, mintLimit: 1 };
-    return { tierLabel: "Bronze", canMint: false, mintLimit: 0 };
+    // Пороги можна тимчасово знизити для demo
+    if (score >= 70) return { tierLabel: "Gold" as const, canMint: true, mintLimit: 3 };
+    if (score >= 20) return { tierLabel: "Silver" as const, canMint: true, mintLimit: 1 };
+    return { tierLabel: "Bronze" as const, canMint: false, mintLimit: 0 };
 }
 
 export async function POST(req: Request) {
@@ -32,10 +33,9 @@ export async function POST(req: Request) {
     if (!secret) return NextResponse.json({ error: "PERMIT_SECRET missing" }, { status: 500 });
 
     const body = await req.json().catch(() => ({}));
-
     const wallet = body.wallet as string | undefined;
     const challengeToken = body.challengeToken as string | undefined;
-    const signatureB64 = body.signature as string | undefined; // base64
+    const signatureB64 = body.signature as string | undefined; // base64 string
 
     const twitter = (body.twitter as string | undefined) ?? null;
 
@@ -46,7 +46,7 @@ export async function POST(req: Request) {
         );
     }
 
-    // 1) Verify challenge token integrity + expiry
+    // 1) Verify challengeToken (HMAC + parse)
     let challenge: ChallengePayload;
     try {
         challenge = verifyHmacToken<ChallengePayload>(challengeToken, secret);
@@ -63,7 +63,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Challenge wallet mismatch" }, { status: 403 });
     }
 
-    // 2) Verify signature (ownership proof)
+    // 2) Verify wallet signature
     const message = buildMessage(challenge);
     const messageBytes = new TextEncoder().encode(message);
 
@@ -86,7 +86,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Invalid wallet signature" }, { status: 403 });
     }
 
-    // 3) Now call FairScale and apply threshold
+    // 3) Fetch FairScale and decide
     try {
         const score = await fetchFairScaleScore(wallet, twitter);
         const decision = decisionFromFairScore(score.fairscore);
@@ -111,8 +111,8 @@ export async function POST(req: Request) {
             fairScore: score.fairscore,
             fairScaleTier: score.tier,
             issuedAt: now,
-            expiresAt: now + 10 * 60, // permit 10 хв
-            nonce: challenge.nonce,   // пов’язуємо permit з challenge
+            expiresAt: now + 10 * 60,
+            nonce: challenge.nonce,
         };
 
         const permit = createPermit(permitPayload, secret);
